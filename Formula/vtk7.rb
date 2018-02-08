@@ -16,9 +16,12 @@ class Vtk7 < Formula
     args = std_cmake_args + %W[
     ]
 
-    system "cmake", "..", *args
-    system "make"
-    system "make", "install"
+    mkdir "build" do
+
+      system "cmake", "..", *args
+      system "make"
+      system "make", "install"
+    end
   end
 
   test do

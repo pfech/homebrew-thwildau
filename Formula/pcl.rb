@@ -1,11 +1,11 @@
-class PclVtk7 < Formula
+class Pcl < Formula
   desc "Library for 2D/3D image and point cloud processing"
   homepage "http://www.pointclouds.org/"
   url "https://github.com/PointCloudLibrary/pcl/archive/pcl-1.8.1.tar.gz"
   sha256 "5a102a2fbe2ba77c775bf92c4a5d2e3d8170be53a68c3a76cfc72434ff7b9783"
   head "https://github.com/PointCloudLibrary/pcl.git"
 
-bottle do
+  bottle do
     sha256 "18efc3f7b897d0f646d8d1dd6512f41cc6abfba296b1dfed2927823e78b60b81" => :high_sierra
     sha256 "46229b4eb3d168ecaff4f83dcfff95642a05d0ff989ab89adb63ba0397c4a909" => :sierra
     sha256 "176fb1d15c2dfbb323eb29d28929624bcf342a09dcb848f610af652e89ba5ec2" => :el_capitan
@@ -13,19 +13,29 @@ bottle do
   end
 
   depends_on "cmake" => :build
-#  depends_on "pkg-config" => :build
-#  depends_on "boost"
-#  depends_on "cminpack"
-#  depends_on "eigen"
-#  depends_on "flann"
-#  depends_on "glew"
-#  depends_on "libusb"
-#  depends_on "qhull"
-#  depends_on "vtk7"
-#  depends_on "homebrew/science/openni" => :optional
-#  depends_on "homebrew/science/openni2" => :optional
+  depends_on "pkg-config" => :build
+  depends_on "boost"
+  depends_on "cminpack"
+  depends_on "eigen"
+  depends_on "flann"
+  depends_on "glew"
+  depends_on "libusb"
+  depends_on "qhull"
+  depends_on "vtk@7.1.1"
+  depends_on "qt"
+  depends_on "homebrew/science/openni" => :optional
+  depends_on "homebrew/science/openni2" => :optional
+
+#  needs :cxx11
 
   def install
+#    ENV.cxx11
+#     ENV['CFLAGS']="-O2 -g"
+#     ENV['CXXFLAGS']="-O2 -g"
+
+     args = %w[
+        -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/pcl/HEAD-9887bad
+     ]
 #    args = std_cmake_args + %w[
 #      -DBUILD_SHARED_LIBS:BOOL=ON
 #      -DBUILD_apps=AUTO_OFF
@@ -44,12 +54,6 @@ bottle do
 #      -DWITH_QT:BOOL=FALSE
 #      -DWITH_TUTORIALS:BOOL=OFF
 #    ]
-#    args = std_cmake_args + %W[
-#    ]
-     args = %W[
-       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/pcl-vtk7/HEAD-9887bad
-       -DVTK_DIR=/usr/local/Cellar/vtk7/7.1.1/lib/cmake/vtk-7.1/
-     ]
 
 #    if build.head?
 #      args << "-DBUILD_apps_modeler=AUTO_OFF"
@@ -63,15 +67,18 @@ bottle do
 #      args << "-DCMAKE_DISABLE_FIND_PACKAGE_OpenNI:BOOL=TRUE"
 #    end
 
-#    if build.with? "openni2"
-#      ENV.append "OPENNI2_INCLUDE", "#{Formula["openni2"].opt_include}/ni2"
-#      ENV.append "OPENNI2_LIB", "#{Formula["openni2"].opt_lib}/ni2"
+    if build.with? "openni2"
+      ENV.append "OPENNI2_INCLUDE", "#{Formula["openni2"].opt_include}/ni2"
+      ENV.append "OPENNI2_LIB", "#{Formula["openni2"].opt_lib}/ni2"
 #      args << "-DBUILD_OPENNI2:BOOL=ON"
-#    end
+    end
 
     mkdir "build" do
+#      system "cmake", "..", *args
       system "cmake", "..", *args
+      system "make", "-j8", "VERBOSE=1"
       system "make", "install"
+#      system "make", "install"
       prefix.install Dir["#{bin}/*.app"]
     end
   end
