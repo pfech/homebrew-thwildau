@@ -32,9 +32,8 @@ class Pcl < Formula
 #    ENV.cxx11
 #     ENV['CFLAGS']="-O2 -g"
 #     ENV['CXXFLAGS']="-O2 -g"
-
-     args = %w[
-        -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/pcl/HEAD-9887bad
+    ENV.append "CXXFLAGS", "-DBOOST_UUID_RANDOM_GENERATOR_COMPAT"
+     args = std_cmake_args + %w[
      ]
 #    args = std_cmake_args + %w[
 #      -DBUILD_SHARED_LIBS:BOOL=ON
@@ -76,7 +75,7 @@ class Pcl < Formula
     mkdir "build" do
 #      system "cmake", "..", *args
       system "cmake", "..", *args
-      system "make", "-j8", "VERBOSE=1"
+      system "make", "VERBOSE=1"
       system "make", "install"
 #      system "make", "install"
       prefix.install Dir["#{bin}/*.app"]
